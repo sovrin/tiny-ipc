@@ -1,0 +1,19 @@
+{
+  "name": "tiny-ipc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sovrin/tiny-ipc.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sovrin/tiny-ipc/issues"
+  },
+  "homepage": "https://github.com/sovrin/tiny-ipc#readme"
+}

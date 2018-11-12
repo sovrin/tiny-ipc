@@ -3,6 +3,13 @@ const {randomBytes} = require('crypto');
 
 const SEPARATOR = '<!eom\0';
 
+const HANDLERS = {
+	ERROR: 'error',
+	DATA: 'data',
+	CLOSE: 'close',
+	CONNECT: 'connect'
+};
+
 /**
  * create an user id to distinguish between clients
  *
@@ -60,7 +67,7 @@ const ipc = ({port, host, path}) => {
 			const message = JSON.stringify({event, data}) + SEPARATOR;
 			socket.write(message);
 		} catch (e) {
-			handlers['error'] && handlers['error'](e);
+			handlers[HANDLERS.ERROR] && handlers[HANDLERS.ERROR](e);
 		}
 
 		callback && callback();
@@ -84,7 +91,7 @@ const ipc = ({port, host, path}) => {
 				const {event, data} = JSON.parse(fragment);
 				handlers[event] && handlers[event]({data, uid: socket.uid});
 			} catch (e) {
-				handlers['error'] && handlers['error'](e);
+				handlers[HANDLERS.ERROR] && handlers[HANDLERS.ERROR](e);
 			}
 		}
 
@@ -117,10 +124,10 @@ const ipc = ({port, host, path}) => {
 	 */
 	const bind = (instance) => {
 		instance
-			.on('data', (data) => process(data, instance))
-			.on('error', (e) => handlers['error'] && handlers['error'](e))
-			.on('close', () => (socket) => {
-				handlers['close'] && handlers['close']({uid: socket.uid});
+			.on(HANDLERS.DATA, (data) => process(data, instance))
+			.on(HANDLERS.ERROR, (e) => handlers[HANDLERS.ERROR] && handlers[HANDLERS.ERROR](e))
+			.on(HANDLERS.CLOSE, () => (socket) => {
+				handlers[HANDLERS.CLOSE] && handlers[HANDLERS.CLOSE]({uid: socket.uid});
 				sockets.splice(sockets.indexOf(socket), 1);
 			})
 		;
@@ -196,7 +203,7 @@ const ipc = ({port, host, path}) => {
 
 				bind(socket);
 				sockets.push(socket);
-				handlers['connect'] && handlers['connect']({uid: socket.uid});
+				handlers[HANDLERS.CONNECT] && handlers[HANDLERS.CONNECT]({uid: socket.uid});
 			})
 		;
 

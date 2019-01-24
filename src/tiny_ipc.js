@@ -223,3 +223,4 @@ const ipc = ({port, host, path}) => {
  * Time: 22:22
  */
 module.exports = ipc;
+module.exports.Handler = HANDLER;

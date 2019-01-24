@@ -3,7 +3,7 @@ const {randomBytes} = require('crypto');
 
 const SEPARATOR = '<!eom\0';
 
-const HANDLERS = {
+const HANDLER = {
 	ERROR: 'error',
 	DATA: 'data',
 	CLOSE: 'close',
@@ -25,7 +25,6 @@ const uid = () => (
  * @param path
  * @return {string}
  */
-
 const xpipe = (path) => {
 	const prefix = (((process.platform === 'win32') && '//./pipe/')) || '';
 	path = ((prefix.endsWith('/') && path.startsWith('/')) && path.substr(1)) || path;
@@ -67,7 +66,7 @@ const ipc = ({port, host, path}) => {
 			const message = JSON.stringify({event, data}) + SEPARATOR;
 			socket.write(message);
 		} catch (e) {
-			handlers[HANDLERS.ERROR] && handlers[HANDLERS.ERROR](e);
+			handlers[HANDLER.ERROR] && handlers[HANDLER.ERROR](e);
 		}
 
 		callback && callback();
@@ -89,9 +88,9 @@ const ipc = ({port, host, path}) => {
 
 			try {
 				const {event, data} = JSON.parse(fragment);
-				handlers[event] && handlers[event]({data, uid: socket.uid});
+				handlers[event] && handlers[event](data, socket.uid);
 			} catch (e) {
-				handlers[HANDLERS.ERROR] && handlers[HANDLERS.ERROR](e);
+				handlers[HANDLER.ERROR] && handlers[HANDLER.ERROR](e);
 			}
 		}
 
@@ -124,10 +123,10 @@ const ipc = ({port, host, path}) => {
 	 */
 	const bind = (instance) => {
 		instance
-			.on(HANDLERS.DATA, (data) => process(data, instance))
-			.on(HANDLERS.ERROR, (e) => handlers[HANDLERS.ERROR] && handlers[HANDLERS.ERROR](e))
-			.on(HANDLERS.CLOSE, () => (socket) => {
-				handlers[HANDLERS.CLOSE] && handlers[HANDLERS.CLOSE]({uid: socket.uid});
+			.on(HANDLER.DATA, (data) => process(data, instance))
+			.on(HANDLER.ERROR, (e) => handlers[HANDLER.ERROR] && handlers[HANDLER.ERROR](e, instance.uid))
+			.on(HANDLER.CLOSE, () => (socket) => {
+				handlers[HANDLER.CLOSE] && handlers[HANDLER.CLOSE](socket.uid);
 				sockets.splice(sockets.indexOf(socket), 1);
 			})
 		;
@@ -144,7 +143,7 @@ const ipc = ({port, host, path}) => {
 
 		const close = (cb) => socket.end(cb);
 
-		const emit = ({event, data}, cb) => {
+		const emit = (event, data, cb) => {
 			write({event, data, socket}, cb);
 
 			return {emit, on, close};
@@ -177,14 +176,9 @@ const ipc = ({port, host, path}) => {
 
 		const close = (cb) => server.close(cb);
 
-		const emit = ({uid, event, data}, cb) => {
-			if (uid) {
-				const socket = sockets.find((s) => s.uid === uid);
-				socket && write({event, data, socket}, cb);
-			} else {
-				for (const socket of sockets) {
-					write({event, data, socket}, cb);
-				}
+		const emit = (event, data, cb) => {
+			for (const socket of sockets) {
+				write({event, data, socket}, cb);
 			}
 
 			return {emit, on, close};
@@ -203,7 +197,10 @@ const ipc = ({port, host, path}) => {
 
 				bind(socket);
 				sockets.push(socket);
-				handlers[HANDLERS.CONNECT] && handlers[HANDLERS.CONNECT]({uid: socket.uid});
+				handlers[HANDLER.CONNECT] && handlers[HANDLER.CONNECT]({
+					emit: (event, data = {}, cb) => write({event, data, socket}, cb),
+					uid: socket.uid,
+				});
 			})
 		;
 
@@ -220,4 +217,9 @@ const ipc = ({port, host, path}) => {
 	};
 };
 
+/**
+ * User: Oleg Kamlowski <n@sovrin.de>
+ * Date: 24.01.2019
+ * Time: 22:22
+ */
 module.exports = ipc;

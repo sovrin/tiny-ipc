@@ -16,7 +16,7 @@ const HANDLER = {
  * @return {*}
  */
 const uid = () => (
-	randomBytes(16).toString('hex')
+	randomBytes(32).toString('hex')
 );
 
 /**

@@ -17,8 +17,8 @@ listen()
 	.on(Handler.ERROR, (err) => {
 		console.error(err);
 	})
-	.on('/foo', (data, uid) => {
-		console.info(`server got "${data}" from user: ${uid}`);
+	.on('/foo', (data, cid) => {
+		console.info(`server got "${data}" from client: ${cid}`);
 	})
 	 // emit to every connected client
 	 //.emit('/publish', 'data')

@@ -11,11 +11,11 @@ const HANDLER = {
 };
 
 /**
- * create an user id to distinguish between clients
+ * create a client id to distinguish between clients
  *
  * @return {*}
  */
-const uid = () => (
+const cid = () => (
 	randomBytes(32).toString('hex')
 );
 
@@ -88,7 +88,7 @@ const ipc = ({port, host, path}) => {
 
 			try {
 				const {event, data} = JSON.parse(fragment);
-				handlers[event] && handlers[event](data, socket.uid);
+				handlers[event] && handlers[event](data, socket.cid);
 			} catch (e) {
 				handlers[HANDLER.ERROR] && handlers[HANDLER.ERROR](e);
 			}
@@ -124,9 +124,9 @@ const ipc = ({port, host, path}) => {
 	const bind = (instance) => {
 		instance
 			.on(HANDLER.DATA, (data) => process(data, instance))
-			.on(HANDLER.ERROR, (e) => handlers[HANDLER.ERROR] && handlers[HANDLER.ERROR](e, instance.uid))
+			.on(HANDLER.ERROR, (e) => handlers[HANDLER.ERROR] && handlers[HANDLER.ERROR](e, instance.cid))
 			.on(HANDLER.CLOSE, () => (socket) => {
-				handlers[HANDLER.CLOSE] && handlers[HANDLER.CLOSE](socket.uid);
+				handlers[HANDLER.CLOSE] && handlers[HANDLER.CLOSE](socket.cid);
 				sockets.splice(sockets.indexOf(socket), 1);
 			})
 		;
@@ -192,14 +192,14 @@ const ipc = ({port, host, path}) => {
 
 		server
 			.on('connection', (socket) => {
-				socket.uid = uid();
+				socket.cid = cid();
 				socket.setEncoding('utf8');
 
 				bind(socket);
 				sockets.push(socket);
 				handlers[HANDLER.CONNECT] && handlers[HANDLER.CONNECT]({
 					emit: (event, data = {}, cb) => write({event, data, socket}, cb),
-					uid: socket.uid,
+					cid: socket.cid,
 				});
 			})
 		;

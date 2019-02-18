@@ -6,13 +6,13 @@ const {connect} = require('../')({
 	// 'port': '1337',
 });
 
-connect()
+connect((socket) => console.info('connected to: ', socket))
 	.on(Handler.ERROR, (err) => {
 		console.error(err);
 	})
-	.on('/baz', (data) => {
+	.on('baz', (data) => {
 		console.info(`client got "${data}" from server`);
 	})
-	.emit('/foo', 'clown')
+	.emit('foo', 'clown')
 	.close()
 ;

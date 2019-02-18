@@ -38,7 +38,7 @@ const xpipe = (path) => {
  * @param port
  * @param host
  * @param path
- * @return {*}
+ * @returns {{connect: (function(*=): {emit: (function(*, *, *=): {emit: (function(*, *, *=)), close: (function(*=): *), on: (function(*=, *=): {emit: (function(*, *, *=)), close: (function(*=): *), on: (function(*=, *=))})}), close: (function(*=): *), on: (function(*=, *=): {emit: (function(*, *, *=)), close: (function(*=): *), on: (function(*=, *=))})}), listen: (function(*=): {emit: (function(*, *, *=): {emit: (function(*, *, *=)), close: (function(*=): *), on: (function(*=, *=): {emit: (function(*, *, *=)), close: (function(*=): *), on: (function(*=, *=))})}), close: (function(*=): *), on: (function(*=, *=): {emit: (function(*, *, *=)), close: (function(*=): *), on: (function(*=, *=))})})}}
  */
 const ipc = ({port, host, path}) => {
 	const sockets = [];
@@ -101,17 +101,18 @@ const ipc = ({port, host, path}) => {
 	 * instantiate server/socket and listen/connect
 	 *
 	 * @param obj
-	 * @param fn
+	 * @param method
 	 * @param callback
-	 * @return {{instance: *, close: close}}
+	 * @return {module:net.Server|module:net.Socket}}
 	 */
-	const factory = (obj, fn, callback) => {
+	const factory = (obj, method, callback) => {
 		const instance = new obj();
 		const cb = () => callback(instance);
 
 		(port)
-			? instance[fn](port, host, cb)
-			: instance[fn](xpipe(path), cb);
+			? instance[method](port, host, cb)
+			: instance[method](xpipe(path), cb)
+		;
 
 		return instance;
 	};

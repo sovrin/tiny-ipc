@@ -12,7 +12,7 @@ $ npm i @sovrin/tiny-ipc
 
 ## Examples
 Server side:
-```ecmascript 6
+```js
 const ipc = require('@sovrin/tiny-ipc');
 
 const {listen} = ipc({
@@ -46,7 +46,7 @@ listen((server) => console.info(server.address()))
 ```
 
 Client side:
-```ecmascript 6
+```js
 const ipc = require('@sovrin/tiny-ipc');
 
 const {connect} = ipc({

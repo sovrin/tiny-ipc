@@ -54,6 +54,13 @@ const ipc = ({port, host, path}) => {
 	const handle = (evt, callback) => handlers[evt] = callback;
 
 	/**
+	 * unregister event handle
+	 *
+	 * @param evt
+	 */
+	const unhandle = (evt) => delete handlers[evt];
+
+	/**
 	 * write data to socket
 	 *
 	 * @param event
@@ -147,14 +154,22 @@ const ipc = ({port, host, path}) => {
 		const emit = (event, data, cb) => {
 			write({event, data, socket}, cb);
 
-			return {emit, on, close};
+			return context;
 		};
 
 		const on = (event, callback) => {
 			handle(event, callback);
 
-			return {emit, on, close};
+			return context;
 		};
+
+		const off = (event) => {
+			unhandle(event);
+
+			return context;
+		};
+
+		const context = {emit, on, off, close};
 
 		bind(socket);
 		sockets.push(socket);
@@ -182,14 +197,22 @@ const ipc = ({port, host, path}) => {
 				write({event, data, socket}, cb);
 			}
 
-			return {emit, on, close};
+			return context;
 		};
 
 		const on = (event, callback) => {
 			handle(event, callback);
 
-			return {emit, on, close};
+			return context;
 		};
+
+		const off = (event) => {
+			unhandle(event);
+
+			return context;
+		};
+
+		const context = {emit, on, off, close};
 
 		server
 			.on('connection', (socket) => {

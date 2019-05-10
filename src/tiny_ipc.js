@@ -38,7 +38,7 @@ const xpipe = (path) => {
  * @param port
  * @param host
  * @param path
- * @returns {{connect: (function(*=): {emit: (function(*, *, *=): {emit: (function(*, *, *=)), close: (function(*=): *), on: (function(*=, *=): {emit: (function(*, *, *=)), close: (function(*=): *), on: (function(*=, *=))})}), close: (function(*=): *), on: (function(*=, *=): {emit: (function(*, *, *=)), close: (function(*=): *), on: (function(*=, *=))})}), listen: (function(*=): {emit: (function(*, *, *=): {emit: (function(*, *, *=)), close: (function(*=): *), on: (function(*=, *=): {emit: (function(*, *, *=)), close: (function(*=): *), on: (function(*=, *=))})}), close: (function(*=): *), on: (function(*=, *=): {emit: (function(*, *, *=)), close: (function(*=): *), on: (function(*=, *=))})})}}
+ * @returns {{connect: (function(*=): {emit: (function(*, *, *=): {emit: (function(*, *, *=)), close: (function(*=): void), off: (function(*=)), on: (function(*=, *=))}), close: (function(*=): void), off: (function(*=)), on: (function(*=, *=))}), listen: (function(*=): {emit: (function(*, *, *=): {emit: (function(*, *, *=)), close: (function(*=): this), off: (function(*=)), on: (function(*=, *=))}), close: (function(*=): this), off: (function(*=)), on: (function(*=, *=))})}}
  */
 const ipc = ({port, host, path}) => {
 	const sockets = [];
@@ -178,6 +178,7 @@ const ipc = ({port, host, path}) => {
 			close,
 			emit,
 			on,
+			off
 		};
 	};
 
@@ -232,6 +233,7 @@ const ipc = ({port, host, path}) => {
 			close,
 			emit,
 			on,
+			off,
 		};
 	};
 

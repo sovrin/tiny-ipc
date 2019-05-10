@@ -1,6 +1,6 @@
 {
   "name": "@sovrin/tiny-ipc",
-  "version": "2.1.0",
+  "version": "2.2.1",
   "description": "minimal library for communication between nodejs processes",
   "main": "index.js",
   "files": [
